@@ -2277,18 +2277,6 @@
           💳 PAY $100 INSTANTLY VIA PAYSTACK →
         </button>
 
-        <div id="live5kTestWrap" style="text-align:center;margin-top:10px">
-          <button type="button" onclick="payWithPaystack(5000)" style="background:rgba(34,197,94,0.16);border:1.5px solid #22C55E;color:#4ADE80;font-size:12.5px;font-weight:800;padding:10px 14px;border-radius:8px;cursor:pointer;width:100%;box-shadow:0 6px 18px rgba(34,197,94,0.2)">
-            ⚡ LIVE ₦5,000 PAYSTACK TEST: Pay Real ₦5,000 via Paystack (Tests Live Card/Transfer + Meta Pixel + GHL) →
-          </button>
-        </div>
-
-        <div id="testSimulateWrap" style="text-align:center;margin-top:8px">
-          <button type="button" onclick="finalizePaystackOrder('TEST_SIM_' + Date.now(), document.getElementById('bumpConsultation').checked, 5000)" style="background:rgba(0,210,255,0.12);border:1px dashed #00D2FF;color:#00D2FF;font-size:11.5px;font-weight:700;padding:7px 14px;border-radius:6px;cursor:pointer;width:100%">
-            🧪 TEST FUNNEL (NO CARD): Simulate Successful Payment (Fires Pixel + GHL &amp; Opens Upsell Page) →
-          </button>
-        </div>
-
         <div style="text-align:center;margin-top:11px;font-size:11.5px;color:var(--text-muted-dark)">
           <span>🔒 Secured by <strong>Paystack</strong> (Card / Bank Transfer / USSD / Mobile Money)</span><br />
           <a href="https://wa.me/33698170335?text=Hi%20David%2C%20I%20need%20help%20completing%20my%20payment%20for%20the%20AI%20Bootcamp!" target="_blank" style="color:#4ADE80;font-weight:700;text-decoration:underline;display:inline-block;margin-top:4px">
@@ -2568,12 +2556,7 @@
 
     fetch('/api/config')
       .then(r => r.json())
-      .then(cfg => {
-        APP_CONFIG = { ...APP_CONFIG, ...cfg };
-        if (APP_CONFIG.test5000Mode) {
-          updateModalTotal();
-        }
-      })
+      .then(cfg => { APP_CONFIG = { ...APP_CONFIG, ...cfg }; })
       .catch(() => {});
 
     let currentTier = 'ga';
@@ -2591,14 +2574,6 @@
       if (currentLead.phone) document.getElementById('buyerPhone').value = currentLead.phone;
       if (window.BootcampTracker) {
         window.BootcampTracker.trackPageLanding('Main_Sales_Page_VSL', { value: 150000, currency: 'NGN' });
-      }
-      // Only show test buttons on localhost or when ?test=5000 is in the URL
-      const isTestEnv = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.search.includes('test');
-      const l5k = document.getElementById('live5kTestWrap');
-      const simW = document.getElementById('testSimulateWrap');
-      if (!isTestEnv) {
-        if (l5k) l5k.style.display = 'none';
-        if (simW) simW.style.display = 'none';
       }
     });
 
@@ -2728,22 +2703,21 @@
       const cfg = CURRENCY_MAP[activeCurrency] || CURRENCY_MAP.USD;
 
       const hasConsultation = bumpCheck ? bumpCheck.checked : false;
-      const isTest5k = Boolean(APP_CONFIG.test5000Mode) || new URLSearchParams(window.location.search).get('test') === '5000';
-      const label = isTest5k ? '₦5,000 (Live Test)' : (hasConsultation ? cfg.p197 : cfg.p100);
+      const label = hasConsultation ? cfg.p197 : cfg.p100;
 
       if (bumpRow) bumpRow.style.display = hasConsultation ? 'flex' : 'none';
       if (totalDisplay) totalDisplay.textContent = label;
       if (payBtn) payBtn.textContent = `💳 PAY ${label} INSTANTLY VIA PAYSTACK →`;
     }
 
-    async function payWithPaystack(overrideAmountNgn) {
+    async function payWithPaystack() {
       const bumpCheck = document.getElementById('bumpConsultation');
       const hasConsultation = bumpCheck.checked;
-      const isTest5k = Number(overrideAmountNgn) === 5000 || Boolean(APP_CONFIG.test5000Mode) || new URLSearchParams(window.location.search).get('test') === '5000';
-      const totalUsd = isTest5k ? 3.33 : (hasConsultation ? 150 : 100);
+      const isTest5k = false;
+      const totalUsd = hasConsultation ? 150 : 100;
       const rate = Number(APP_CONFIG.usdToNgnRate || 1500);
-      const amountNgn = isTest5k ? 5000 : Math.round(totalUsd * rate);
-      const ref = (isTest5k ? 'AIE_TEST5K_' : 'AIE_') + Date.now() + '_' + Math.floor(1000 + Math.random() * 9000);
+      const amountNgn = Math.round(totalUsd * rate);
+      const ref = 'AIE_' + Date.now() + '_' + Math.floor(1000 + Math.random() * 9000);
 
       if (window.BootcampTracker) {
         window.BootcampTracker.trackPaystackPopupOpened({

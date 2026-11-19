@@ -708,14 +708,6 @@
           <span class="btn-orange-sub">Click Here to Add This 1-on-1 Session to Your Bootcamp Pass &amp; Continue to Confirmation</span>
         </button>
 
-        <button type="button" class="btn-test-sim" id="live5kUpsellBtn" onclick="acceptUpsell(5000)" style="margin-bottom:8px;background:rgba(22,163,74,0.12);border:1.5px solid #16A34A;color:#15803D;font-weight:800">
-          ⚡ LIVE ₦5,000 UPSELL PAYSTACK TEST: Pay Real ₦5,000 via Paystack (Tests Live Upsell + Meta Pixel + GHL) →
-        </button>
-
-        <button type="button" class="btn-test-sim" id="simUpsellBtn" onclick="simulateUpsellTest()">
-          🧪 TEST UPSELL FLOW (NO CARD): Simulate +$50 VIP Upgrade &amp; View Official Confirmation Page →
-        </button>
-
         <div class="skip-link-wrap">
           <button type="button" class="skip-btn" onclick="declineUpsell()">
             No thank you, David. I don't need a 1-on-1 business audit right now. Take me straight to my Official Confirmation Page &amp; the Private Buyers WhatsApp Group →
@@ -776,13 +768,6 @@
       if (window.BootcampTracker) {
         window.BootcampTracker.trackPageLanding('Upsell_1on1_Consultation_Page', { value: 75000, currency: 'NGN' });
       }
-      const isTestEnv = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.search.includes('test');
-      if (!isTestEnv) {
-        const l5k = document.getElementById('live5kUpsellBtn');
-        const simB = document.getElementById('simUpsellBtn');
-        if (l5k) l5k.style.display = 'none';
-        if (simB) simB.style.display = 'none';
-      }
       try {
         const res = await fetch('/api/config');
         if (res.ok) APP_CONFIG = await res.json();
@@ -842,15 +827,15 @@
       window.location.href = `thankyou.html?order_id=${encodeURIComponent(orderId)}&tier=vip&oto=accepted&ref=${encodeURIComponent(paystackRef || '')}&name=${encodeURIComponent(savedName)}&email=${encodeURIComponent(savedEmail)}&phone=${encodeURIComponent(savedPhone)}`;
     }
 
-    async function acceptUpsell(overrideAmountNgn) {
+    async function acceptUpsell() {
       const btn = document.getElementById('acceptUpsellBtn');
       btn.disabled = true;
 
-      const isTest5k = Number(overrideAmountNgn) === 5000 || Boolean(APP_CONFIG.test5000Mode) || new URLSearchParams(window.location.search).get('test') === '5000';
-      const amountUsd = isTest5k ? 3.33 : Number(APP_CONFIG.upsellPriceUsd || 50);
+      const isTest5k = false;
+      const amountUsd = Number(APP_CONFIG.upsellPriceUsd || 50);
       const rate = Number(APP_CONFIG.usdToNgnRate || 1500);
-      const amountNgn = isTest5k ? 5000 : Math.round(amountUsd * rate);
-      const ref = (isTest5k ? 'AIE_OTO_TEST5K_' : 'AIE_OTO_') + Date.now() + '_' + Math.floor(1000 + Math.random() * 9000);
+      const amountNgn = Math.round(amountUsd * rate);
+      const ref = 'AIE_OTO_' + Date.now() + '_' + Math.floor(1000 + Math.random() * 9000);
 
       if (window.PaystackPop && APP_CONFIG.paystackPublicKey) {
         try {
