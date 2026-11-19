@@ -199,7 +199,8 @@ app.get('/api/config', (req, res) => {
     whatsappDisplay: process.env.WHATSAPP_DISPLAY || '+33 6 98 17 03 35',
     ghlWebhookUrl: GHL_WEBHOOK_URL,
     fbPixelId: process.env.FB_PIXEL_ID || '',
-    gaMeasurementId: process.env.GA_MEASUREMENT_ID || ''
+    gaMeasurementId: process.env.GA_MEASUREMENT_ID || '',
+    test5000Mode: process.env.TEST_5000_MODE === 'true'
   });
 });
 

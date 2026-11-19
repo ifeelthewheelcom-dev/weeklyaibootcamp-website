@@ -828,7 +828,7 @@
       const btn = document.getElementById('acceptUpsellBtn');
       btn.disabled = true;
 
-      const isTest5k = Number(overrideAmountNgn) === 5000;
+      const isTest5k = Number(overrideAmountNgn) === 5000 || Boolean(APP_CONFIG.test5000Mode) || new URLSearchParams(window.location.search).get('test') === '5000';
       const amountUsd = isTest5k ? 3.33 : Number(APP_CONFIG.upsellPriceUsd || 50);
       const rate = Number(APP_CONFIG.usdToNgnRate || 1500);
       const amountNgn = isTest5k ? 5000 : Math.round(amountUsd * rate);

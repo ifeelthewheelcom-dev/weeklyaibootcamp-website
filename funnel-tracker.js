@@ -125,8 +125,12 @@
         ...trackerConfig,
         fbPixelId: activePixel,
         gaMeasurementId: cfg.gaMeasurementId || '',
+        test5000Mode: Boolean(cfg.test5000Mode),
         initialized: true
       };
+      if (cfg.test5000Mode) {
+        mountVisualInspector(true);
+      }
       if (activePixel) {
         try { localStorage.setItem(STORAGE_KEYS.PIXEL_ID, activePixel); } catch (e) {}
         injectMetaPixel(activePixel, getStoredLead());
@@ -445,8 +449,8 @@
     }).join('');
   }
 
-  function mountVisualInspector() {
-    if (!isTestOrLocal()) return;
+  function mountVisualInspector(forceShow) {
+    if (!forceShow && !trackerConfig.test5000Mode && !isTestOrLocal()) return;
     if (document.getElementById('aiePixelInspector')) return;
 
     const wrap = document.createElement('div');

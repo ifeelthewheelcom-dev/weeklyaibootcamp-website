@@ -2550,7 +2550,14 @@
 
     fetch('/api/config')
       .then(r => r.json())
-      .then(cfg => { APP_CONFIG = { ...APP_CONFIG, ...cfg }; })
+      .then(cfg => {
+        APP_CONFIG = { ...APP_CONFIG, ...cfg };
+        if (APP_CONFIG.test5000Mode) {
+          const l5k = document.getElementById('live5kTestWrap');
+          if (l5k) l5k.style.display = 'block';
+          updateModalTotal();
+        }
+      })
       .catch(() => {});
 
     let currentTier = 'ga';
@@ -2705,7 +2712,8 @@
       const cfg = CURRENCY_MAP[activeCurrency] || CURRENCY_MAP.USD;
 
       const hasConsultation = bumpCheck ? bumpCheck.checked : false;
-      const label = hasConsultation ? cfg.p197 : cfg.p100;
+      const isTest5k = Boolean(APP_CONFIG.test5000Mode) || new URLSearchParams(window.location.search).get('test') === '5000';
+      const label = isTest5k ? '₦5,000 (Live Test)' : (hasConsultation ? cfg.p197 : cfg.p100);
 
       if (bumpRow) bumpRow.style.display = hasConsultation ? 'flex' : 'none';
       if (totalDisplay) totalDisplay.textContent = label;
@@ -2715,7 +2723,7 @@
     async function payWithPaystack(overrideAmountNgn) {
       const bumpCheck = document.getElementById('bumpConsultation');
       const hasConsultation = bumpCheck.checked;
-      const isTest5k = Number(overrideAmountNgn) === 5000 || new URLSearchParams(window.location.search).get('test') === '5000';
+      const isTest5k = Number(overrideAmountNgn) === 5000 || Boolean(APP_CONFIG.test5000Mode) || new URLSearchParams(window.location.search).get('test') === '5000';
       const totalUsd = isTest5k ? 3.33 : (hasConsultation ? 150 : 100);
       const rate = Number(APP_CONFIG.usdToNgnRate || 1500);
       const amountNgn = isTest5k ? 5000 : Math.round(totalUsd * rate);
