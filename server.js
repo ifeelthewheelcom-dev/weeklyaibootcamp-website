@@ -198,7 +198,7 @@ app.get('/api/config', (req, res) => {
     whatsappNumber: process.env.WHATSAPP_NUMBER || '33698170335',
     whatsappDisplay: process.env.WHATSAPP_DISPLAY || '+33 6 98 17 03 35',
     ghlWebhookUrl: GHL_WEBHOOK_URL,
-    fbPixelId: process.env.FB_PIXEL_ID || '',
+    fbPixelId: process.env.FB_PIXEL_ID || '1183750054216316',
     gaMeasurementId: process.env.GA_MEASUREMENT_ID || '',
     test5000Mode: process.env.TEST_5000_MODE === 'true'
   });
@@ -237,7 +237,7 @@ app.post('/api/pixel/event', async (req, res) => {
     };
     fs.appendFileSync(PIXEL_LOG_FILE, JSON.stringify(payload) + '\n', 'utf8');
 
-    const pixelId = process.env.FB_PIXEL_ID || payload.pixel_id || '';
+    const pixelId = process.env.FB_PIXEL_ID || payload.pixel_id || '1183750054216316';
     if (pixelId && process.env.FB_CAPI_TOKEN && payload.standard_event) {
       const sha256 = (v) => crypto.createHash('sha256').update(String(v).trim().toLowerCase()).digest('hex');
       const userData = {

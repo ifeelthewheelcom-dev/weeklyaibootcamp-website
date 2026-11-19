@@ -18,6 +18,7 @@
     EVENT_HISTORY: 'aie_pixel_event_history_v1'
   };
 
+  const DEFAULT_PIXEL_ID = '1183750054216316';
   const urlParams = new URLSearchParams(window.location.search);
   const urlPixel = urlParams.get('pixel') || urlParams.get('fb_pixel_id') || '';
   if (urlPixel && /^\d{10,20}$/.test(urlPixel.trim())) {
@@ -27,20 +28,13 @@
   let trackerConfig = {
     fbPixelId: (urlPixel && /^\d{10,20}$/.test(urlPixel.trim()))
       ? urlPixel.trim()
-      : (localStorage.getItem(STORAGE_KEYS.PIXEL_ID) || ''),
+      : (localStorage.getItem(STORAGE_KEYS.PIXEL_ID) || DEFAULT_PIXEL_ID),
     gaMeasurementId: '',
     initialized: false
   };
 
   function isTestOrLocal() {
-    const h = window.location.hostname;
-    return (
-      h === 'localhost' ||
-      h === '127.0.0.1' ||
-      urlParams.has('test') ||
-      urlParams.has('test5k') ||
-      urlParams.has('debug_pixel')
-    );
+    return urlParams.has('debug_pixel');
   }
 
   function getFiredEvents() {
@@ -123,14 +117,11 @@
       const activePixel = trackerConfig.fbPixelId || serverPixel;
       trackerConfig = {
         ...trackerConfig,
-        fbPixelId: activePixel,
+        fbPixelId: activePixel || DEFAULT_PIXEL_ID,
         gaMeasurementId: cfg.gaMeasurementId || '',
         test5000Mode: Boolean(cfg.test5000Mode),
         initialized: true
       };
-      if (cfg.test5000Mode) {
-        mountVisualInspector(true);
-      }
       if (activePixel) {
         try { localStorage.setItem(STORAGE_KEYS.PIXEL_ID, activePixel); } catch (e) {}
         injectMetaPixel(activePixel, getStoredLead());
@@ -243,8 +234,9 @@
     // 1. Page Landing (index.html, upsell-consultation.html, thankyou.html)
     trackPageLanding: async function (pageName, customProps = {}) {
       await initTracker();
-      if (typeof window.fbq === 'function' && trackerConfig.fbPixelId) {
+      if (typeof window.fbq === 'function' && trackerConfig.fbPixelId && !window._fbqPageViewFired) {
         window.fbq('track', 'PageView');
+        window._fbqPageViewFired = true;
       }
       dispatchEvent({
         standardEvent: 'ViewContent',
@@ -449,8 +441,8 @@
     }).join('');
   }
 
-  function mountVisualInspector(forceShow) {
-    if (!forceShow && !trackerConfig.test5000Mode && !isTestOrLocal()) return;
+  function mountVisualInspector() {
+    if (!isTestOrLocal()) return;
     if (document.getElementById('aiePixelInspector')) return;
 
     const wrap = document.createElement('div');
