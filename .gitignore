@@ -1,0 +1,6 @@
+node_modules
+.env
+leads_and_orders.csv
+pixel_events.jsonl
+*.py
+.DS_Store
